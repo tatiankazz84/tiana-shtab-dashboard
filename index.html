@@ -127,7 +127,13 @@
     </div>
     <nav class="bottom-nav"><button class="navbtn active" onclick="go('today')">Сегодня</button><button class="navbtn" onclick="go('work')">В работе</button><button class="navbtn" onclick="go('risks')">Горит</button><button class="navbtn" onclick="go('decisions')">Решить</button></nav>
   </main>
+  <script src="https://telegram.org/js/telegram-web-app.js"></script>
   <script>
+    const telegramApp = window.Telegram?.WebApp;
+    if (telegramApp) {
+      telegramApp.ready();
+      telegramApp.expand();
+    }
     document.querySelectorAll('.check').forEach((check,i)=>{const key='shtab_done_'+i;if(localStorage.getItem(key)==='1'){check.checked=true;check.closest('.item').classList.add('done')}check.addEventListener('change',()=>{localStorage.setItem(key,check.checked?'1':'0');check.closest('.item').classList.toggle('done',check.checked)})});
     function go(id){document.getElementById(id).scrollIntoView({behavior:'smooth',block:'start'});document.querySelectorAll('.navbtn').forEach(b=>b.classList.remove('active'));event.target.classList.add('active')}
   </script>
