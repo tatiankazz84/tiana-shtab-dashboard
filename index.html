@@ -76,7 +76,7 @@
     .tag.later{color:#a06a00;background:linear-gradient(135deg,#fff3c4,#ffffff)}
     @keyframes pulseHot{0%,100%{transform:scale(1);box-shadow:0 6px 13px rgba(255,126,146,.10)}50%{transform:scale(1.04);box-shadow:0 8px 18px rgba(255,126,146,.24)}}
     .list{display:grid;gap:9px}
-    .task-group{padding:12px;border-radius:21px;background:#fff;border:1px solid var(--line)}.task-group summary{list-style:none;cursor:pointer}.task-group summary::-webkit-details-marker{display:none}.task-group summary::after{content:'⌄';float:right;color:var(--mint-dark);font-size:20px;font-weight:1000}.task-group[open] summary::after{transform:rotate(180deg)}.task-subtasks{display:grid;gap:8px;margin:12px 0 0;padding:11px 0 0;border-top:1px solid var(--line)}.subtask{display:grid;grid-template-columns:24px 1fr;gap:8px;align-items:start;font-size:13px;line-height:1.3;color:var(--muted);font-weight:750}.subtask-mark{width:20px;height:20px;border:2px solid #99dcd7;border-radius:7px;background:#f2fffd;display:grid;place-items:center;color:#fff;font-size:14px;font-weight:1000}.subtask.done .subtask-mark{background:var(--mint);border-color:var(--mint-dark)}.subtask.done span:last-child{text-decoration:line-through;opacity:.65}
+    .task-group{padding:12px;border-radius:21px;background:#fff;border:1px solid var(--line)}.task-group summary{list-style:none;cursor:pointer}.task-group summary::-webkit-details-marker{display:none}.task-group summary::after{content:'⌄';float:right;color:var(--mint-dark);font-size:20px;font-weight:1000}.task-group[open] summary::after{transform:rotate(180deg)}.task-subtasks{display:grid;gap:8px;margin:12px 0 0;padding:11px 0 0;border-top:1px solid var(--line)}.subtask{display:grid;grid-template-columns:24px 1fr;gap:8px;align-items:start;font-size:13px;line-height:1.3;color:var(--muted);font-weight:750}.subtask-mark{width:20px;height:20px;border:2px solid #99dcd7;border-radius:7px;background:#f2fffd;display:grid;place-items:center;color:#fff;font-size:14px;font-weight:1000;cursor:pointer;user-select:none}.subtask-mark:focus{outline:3px solid rgba(85,207,194,.35);outline-offset:2px}.subtask.done .subtask-mark{background:var(--mint);border-color:var(--mint-dark)}.subtask.done span:last-child{text-decoration:line-through;opacity:.65}
     .item{display:grid;grid-template-columns:28px 1fr;gap:10px;align-items:start;padding:11px;border-radius:21px;background:#fff;border:1px solid var(--line)}
     .check{appearance:none;width:26px;height:26px;border-radius:9px;border:2px solid #99dcd7;background:#f2fffd;margin:0;display:grid;place-items:center}.check:checked{background:var(--mint);border-color:var(--mint-dark)}.check:checked::after{content:"✓";color:#fff;font-weight:1000;font-size:18px;line-height:1}.item.done{opacity:.58}.item.done .title{text-decoration:line-through}
     .title{font-size:15px;font-weight:1000;letter-spacing:-.025em;line-height:1.18}.meta{display:flex;flex-wrap:wrap;gap:6px;margin-top:7px}.pill{padding:5px 8px;border-radius:999px;font-size:11px;font-weight:1000;background:#eaf9fb;color:#25758a}.pill.warn{background:var(--pink-bg);color:#c94f65}.pill.gray{background:#f1f3f4;color:#65757d}.pill.lilac{background:#f0ebff;color:#7658ca}
@@ -120,6 +120,40 @@
     const moscowDate = new Intl.DateTimeFormat('ru-RU', { timeZone: 'Europe/Moscow', day: 'numeric', month: 'long' }).format(new Date());
     document.getElementById('top-date').textContent = moscowDate;
     document.getElementById('today-date').textContent = moscowDate;
+    const checksKey = 'tiana-shtab-subtasks-v1';
+    const savedChecks = JSON.parse(localStorage.getItem(checksKey) || '{}');
+    document.querySelectorAll('.task-group').forEach((group, groupIndex) => {
+      const title = group.querySelector('.title')?.textContent.trim() || `task-${groupIndex}`;
+      const subtasks = [...group.querySelectorAll('.subtask')];
+      const refresh = () => {
+        const allDone = subtasks.length > 0 && subtasks.every(item => item.classList.contains('done'));
+        group.classList.toggle('complete', allDone);
+        const summary = group.querySelector('summary');
+        if (summary) summary.setAttribute('aria-label', allDone ? `${title}: готово` : title);
+      };
+      subtasks.forEach((item, subtaskIndex) => {
+        const mark = item.querySelector('.subtask-mark');
+        if (!mark) return;
+        const id = `${groupIndex}-${subtaskIndex}`;
+        const initial = Object.hasOwn(savedChecks, id) ? savedChecks[id] : item.classList.contains('done');
+        const apply = (done) => {
+          item.classList.toggle('done', done);
+          mark.textContent = done ? '✓' : '';
+          mark.setAttribute('aria-checked', String(done));
+          savedChecks[id] = done;
+          localStorage.setItem(checksKey, JSON.stringify(savedChecks));
+          refresh();
+        };
+        mark.setAttribute('role', 'checkbox');
+        mark.setAttribute('tabindex', '0');
+        apply(initial);
+        mark.addEventListener('click', (event) => { event.preventDefault(); apply(!item.classList.contains('done')); });
+        mark.addEventListener('keydown', (event) => {
+          if (event.key === 'Enter' || event.key === ' ') { event.preventDefault(); apply(!item.classList.contains('done')); }
+        });
+      });
+      refresh();
+    });
     function go(id){document.getElementById(id).scrollIntoView({behavior:'smooth',block:'start'});document.querySelectorAll('.navbtn').forEach(b=>b.classList.remove('active'));event.target.classList.add('active')}
   </script>
 </body>
