@@ -86,7 +86,7 @@
     .charts{display:grid;grid-template-columns:1.15fr .85fr;gap:9px}.chart-card{padding:12px;border-radius:22px;background:#fff;border:1px solid var(--line)}.chart-title{font-size:14px;font-weight:1000;margin-bottom:10px;letter-spacing:-.02em}
     .bars{height:112px;display:flex;align-items:end;gap:7px;padding:6px 2px 0}.bar-col{flex:1;display:flex;flex-direction:column;align-items:center;gap:5px}.bar-col i{width:100%;border-radius:999px 999px 8px 8px;background:linear-gradient(180deg,#bca7ff,#ff9fad);box-shadow:0 8px 13px rgba(128,98,214,.12)}.bar-col:nth-child(2) i{background:linear-gradient(180deg,#ffd66b,#ffa86e)}.bar-col:nth-child(3) i{background:linear-gradient(180deg,#8fd6ff,#75c7e8)}.bar-col:nth-child(4) i{background:linear-gradient(180deg,#77e1d5,#55cfc2)}.bar-col span{font-size:10px;color:var(--muted);font-weight:900}
     .donut-wrap{display:grid;place-items:center;min-height:112px}.donut{width:96px;height:96px;border-radius:50%;background:conic-gradient(var(--lilac) 0 38%, var(--pink) 38% 63%, var(--yellow) 63% 82%, var(--mint) 82% 100%);position:relative;box-shadow:0 10px 18px rgba(67,75,124,.12)}.donut::after{content:"";position:absolute;inset:22px;border-radius:50%;background:#fff}.donut-center{position:absolute;font-size:19px;font-weight:1000;z-index:2;color:var(--lilac-dark)}
-    .bottom-nav{position:sticky;bottom:10px;display:grid;grid-template-columns:repeat(4,1fr);gap:8px;padding:8px;margin-top:14px;border-radius:25px;background:rgba(255,255,255,.80);box-shadow:var(--shadow);backdrop-filter:blur(14px);border:1px solid rgba(255,255,255,.74);z-index:5}.navbtn{border:0;border-radius:17px;padding:9px 4px;background:transparent;color:#68777f;font-size:11px;font-weight:1000}.navbtn.active{background:#e7fbf8;color:#247a80}
+    .bottom-nav{position:sticky;bottom:10px;display:grid;grid-template-columns:repeat(3,1fr);gap:8px;padding:8px;margin-top:14px;border-radius:25px;background:rgba(255,255,255,.80);box-shadow:var(--shadow);backdrop-filter:blur(14px);border:1px solid rgba(255,255,255,.74);z-index:5}.navbtn{border:0;border-radius:17px;padding:9px 4px;background:transparent;color:#68777f;font-size:11px;font-weight:1000}.navbtn.active{background:#e7fbf8;color:#247a80}
     @media (max-width:365px){.charts{grid-template-columns:1fr}.kpi{min-height:76px}.hero{min-height:198px}h1{font-size:31px}}
     @media (min-width:700px){.phone{width:min(980px,100%);padding:20px;display:grid;grid-template-columns:360px 1fr;gap:14px;align-content:start}.top,.hero,.kpis{grid-column:1}.sections{grid-column:2;grid-row:1 / span 4}.hero{min-height:420px;margin-bottom:0}.kpis{grid-template-columns:repeat(2,1fr)}.bottom-nav{display:none}}
   </style>
@@ -110,20 +110,11 @@
         <article class="progress-card"><div class="progress-top"><div class="title">Рассылки и лиды</div><span class="pill">приоритет №1</span></div><div class="bar"><i style="width:80%"></i></div></article>
         <article class="progress-card"><div class="progress-top"><div class="title">Финансовый контур</div><span class="pill lilac">следующий</span></div><div class="bar"><i style="width:15%"></i></div></article>
       </div></section>
-      <section class="section" id="charts"><div class="section-head"><h2>📊 Обзор</h2><span class="tag info">графики</span></div><div class="charts">
-        <div class="chart-card"><div class="chart-title">Активность</div><div class="bars"><div class="bar-col"><i style="height:44%"></i><span>Пн</span></div><div class="bar-col"><i style="height:62%"></i><span>Вт</span></div><div class="bar-col"><i style="height:38%"></i><span>Ср</span></div><div class="bar-col"><i style="height:78%"></i><span>Чт</span></div><div class="bar-col"><i style="height:56%"></i><span>Пт</span></div></div></div>
-        <div class="chart-card"><div class="chart-title">Контуры</div><div class="donut-wrap"><div class="donut"></div><div class="donut-center">7</div></div></div>
-      </div></section>
-      <section class="section" id="risks"><div class="section-head"><h2>🔥 Горит</h2><span class="tag hot">внимание</span></div><div class="list">
-        <article class="risk-card"><div class="title">🗂️ Клиентский контур</div><p class="note">Данные клиента нужно держать в отдельном пространстве.</p></article>
-        <article class="risk-card"><div class="title">🔒 Закрытые данные</div><p class="note">Не смешивать приватные контуры с общими рабочими материалами.</p></article>
-        <article class="risk-card"><div class="title">🤖 Ручное управление</div><p class="note">Не превращать автоматизацию в новую работу.</p></article>
-      </div></section>
       <section class="section" id="decisions"><div class="section-head"><h2>💡 Решить</h2><span class="tag later">позже</span></div><div class="list">
         <article class="decision-card"><div class="title">Финансовый контур</div><p class="note">Следом после рассылок: собрать даты ближайших оплат и выплат в закрытой таблице.</p></article>
       </div></section>
     </div>
-    <nav class="bottom-nav"><button class="navbtn active" onclick="go('today')">Сегодня</button><button class="navbtn" onclick="go('work')">В работе</button><button class="navbtn" onclick="go('risks')">Горит</button><button class="navbtn" onclick="go('decisions')">Решить</button></nav>
+    <nav class="bottom-nav"><button class="navbtn active" onclick="go('today')">Сегодня</button><button class="navbtn" onclick="go('work')">В работе</button><button class="navbtn" onclick="go('decisions')">Решить</button></nav>
   </main>
   <script src="https://telegram.org/js/telegram-web-app.js"></script>
   <script>
