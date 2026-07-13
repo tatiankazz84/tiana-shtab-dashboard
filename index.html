@@ -1,136 +1,47 @@
 <!doctype html>
 <html lang="ru">
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Штаб задач</title>
   <style>
-    @import url('https://fonts.googleapis.com/css2?family=Nunito:wght@600;700;800;900;1000&family=Quicksand:wght@600;700&display=swap');
-    :root{
-      --bg:#bfeef0;
-      --mint:#55cfc2;
-      --mint-dark:#2e9f9a;
-      --lilac:#a98cf5;
-      --lilac-dark:#8062d6;
-      --pink:#ff8ca1;
-      --pink-bg:#fff0f4;
-      --yellow:#ffd66b;
-      --yellow-bg:#fff8dc;
-      --blue:#8fd6ff;
-      --blue-bg:#edf8ff;
-      --card:#ffffff;
-      --ink:#24313a;
-      --muted:#7a8790;
-      --line:rgba(36,49,58,.09);
-      --shadow:0 18px 38px rgba(67,75,124,.16);
-      --shadow-soft:0 10px 22px rgba(67,75,124,.10);
-      --r:28px;
-      --font:'Nunito', ui-rounded, system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
-      --font-head:'Quicksand','Nunito',ui-rounded,system-ui,sans-serif;
-    }
-    *{box-sizing:border-box}
-    body{
-      margin:0;
-      min-height:100vh;
-      font-family:var(--font);
-      color:var(--ink);
-      background:
-        radial-gradient(circle at 10% 4%,rgba(255,255,255,.7),transparent 80px),
-        radial-gradient(circle at 88% 10%,rgba(255,216,241,.42),transparent 100px),
-        linear-gradient(180deg,#e7fbfb 0%,#c8eef3 52%,#addde9 100%);
-    }
-    .phone{
-      width:min(430px,100%);
-      margin:0 auto;
-      min-height:100vh;
-      padding:14px 12px 22px;
-      background:
-        radial-gradient(circle at 70px 130px, rgba(255,255,255,.45), transparent 88px),
-        radial-gradient(circle at 345px 64px, rgba(255,214,107,.32), transparent 72px);
-    }
-    .top{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px}
-    .hello{font-size:13px;color:#4d737c;font-weight:1000;letter-spacing:.01em}
-    .date{padding:8px 12px;border-radius:999px;background:rgba(255,255,255,.68);font-size:12px;font-weight:1000;color:#35747c;box-shadow:var(--shadow-soft)}
-    .hero{
-      position:relative;overflow:hidden;min-height:218px;border-radius:34px;background:#c8f2ef;box-shadow:var(--shadow);border:1px solid rgba(255,255,255,.74);margin-bottom:12px;
-    }
-    .hero img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:center 35%}
-    .hero::after{content:"";position:absolute;inset:0;background:linear-gradient(180deg,rgba(255,255,255,0) 34%,rgba(36,49,58,.70) 100%)}
-    .hero-title{position:absolute;left:18px;right:18px;bottom:16px;z-index:2;color:#fff;text-shadow:0 3px 14px rgba(0,0,0,.22)}
-    h1{margin:0;font-family:var(--font-head);font-size:35px;line-height:.92;letter-spacing:-.055em;font-weight:700}
-    .hero-sub{margin-top:7px;font-size:14px;font-weight:1000;opacity:.96}
-    .kpis{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:12px}
-    .kpi{min-height:82px;padding:10px 8px;border-radius:24px;background:rgba(255,255,255,.84);box-shadow:var(--shadow-soft);border:1px solid rgba(255,255,255,.72)}
-    .kpi .ico{width:30px;height:30px;border-radius:12px;display:grid;place-items:center;margin-bottom:6px;font-size:16px;background:#edf9fb}
-    .kpi b{display:block;font-size:24px;line-height:1;letter-spacing:-.05em;font-weight:1000}
-    .kpi span{display:block;margin-top:4px;font-size:10px;line-height:1.05;text-transform:uppercase;color:var(--muted);font-weight:1000;letter-spacing:.02em}
-    .kpi.good .ico{background:#e7fbf4}.kpi.hot{background:var(--pink-bg)}.kpi.hot .ico{background:#ffd8df}.kpi.work .ico{background:#eee8ff}.kpi.total .ico{background:#fff4cf}
-    .section{margin-bottom:12px;padding:14px;border-radius:var(--r);background:rgba(255,255,255,.86);box-shadow:var(--shadow-soft);border:1px solid rgba(255,255,255,.76);backdrop-filter:blur(10px)}
-    .section-head{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:11px}
-    h2{margin:0;font-family:var(--font-head);font-size:22px;line-height:1;letter-spacing:-.04em;font-weight:700}
-    .tag{font-size:11px;font-weight:1000;border-radius:999px;padding:7px 10px;white-space:nowrap;box-shadow:0 6px 13px rgba(67,75,124,.10);border:1px solid rgba(255,255,255,.78)}
-    .tag.today{color:#1e817a;background:linear-gradient(135deg,#dcfff9,#ffffff)}
-    .tag.now{color:#266fa7;background:linear-gradient(135deg,#e4f5ff,#ffffff)}
-    .tag.info{color:#7559c9;background:linear-gradient(135deg,#f0ebff,#ffffff)}
-    .tag.hot{color:#c94f65;background:linear-gradient(135deg,#ffe0e7,#ffffff);animation:pulseHot 1.7s ease-in-out infinite}
-    .tag.later{color:#a06a00;background:linear-gradient(135deg,#fff3c4,#ffffff)}
-    @keyframes pulseHot{0%,100%{transform:scale(1);box-shadow:0 6px 13px rgba(255,126,146,.10)}50%{transform:scale(1.04);box-shadow:0 8px 18px rgba(255,126,146,.24)}}
-    .list{display:grid;gap:9px}
-    .task-group{padding:12px;border-radius:21px;background:#fff;border:1px solid var(--line)}.task-group summary{list-style:none;cursor:pointer}.task-group summary::-webkit-details-marker{display:none}.task-group summary::after{content:'⌄';float:right;color:var(--mint-dark);font-size:20px;font-weight:1000}.task-group[open] summary::after{transform:rotate(180deg)}.task-subtasks{display:grid;gap:8px;margin:12px 0 0;padding:11px 0 0;border-top:1px solid var(--line)}.subtask{display:grid;grid-template-columns:24px 1fr;gap:8px;align-items:start;font-size:13px;line-height:1.3;color:var(--muted);font-weight:750}.subtask-mark{width:20px;height:20px;border:2px solid #99dcd7;border-radius:7px;background:#f2fffd;display:grid;place-items:center;color:#fff;font-size:14px;font-weight:1000;cursor:pointer;user-select:none}.subtask-mark:focus{outline:3px solid rgba(85,207,194,.35);outline-offset:2px}.task-group.complete summary .title{text-decoration:line-through;opacity:.58}.subtask.done .subtask-mark{background:var(--mint);border-color:var(--mint-dark)}.subtask.done span:last-child{text-decoration:line-through;opacity:.65}
-    .item{display:grid;grid-template-columns:28px 1fr;gap:10px;align-items:start;padding:11px;border-radius:21px;background:#fff;border:1px solid var(--line)}
-    .check{appearance:none;width:26px;height:26px;border-radius:9px;border:2px solid #99dcd7;background:#f2fffd;margin:0;display:grid;place-items:center}.check:checked{background:var(--mint);border-color:var(--mint-dark)}.check:checked::after{content:"✓";color:#fff;font-weight:1000;font-size:18px;line-height:1}.item.done{opacity:.58}.item.done .title{text-decoration:line-through}
-    .title{font-size:15px;font-weight:1000;letter-spacing:-.025em;line-height:1.18}.meta{display:flex;flex-wrap:wrap;gap:6px;margin-top:7px}.pill{padding:5px 8px;border-radius:999px;font-size:11px;font-weight:1000;background:#eaf9fb;color:#25758a}.pill.warn{background:var(--pink-bg);color:#c94f65}.pill.gray{background:#f1f3f4;color:#65757d}.pill.lilac{background:#f0ebff;color:#7658ca}
-    .note{margin:7px 0 0;font-size:13px;line-height:1.32;color:var(--muted);font-weight:750}
-    .risk-card,.decision-card,.progress-card{padding:12px;border-radius:21px;background:#fff;border:1px solid var(--line)}
-    .risk-card{background:linear-gradient(135deg,#fff,var(--pink-bg));border-color:rgba(255,126,146,.18)}.decision-card{background:linear-gradient(135deg,#fff,#f3edff);border-color:rgba(126,100,200,.12)}
-    .progress-top{display:flex;justify-content:space-between;gap:8px;align-items:center;margin-bottom:8px}.bar{height:9px;border-radius:999px;background:#e8eff2;overflow:hidden}.bar i{display:block;height:100%;border-radius:999px;background:linear-gradient(90deg,var(--mint),var(--yellow))}
-    .charts{display:grid;grid-template-columns:1.15fr .85fr;gap:9px}.chart-card{padding:12px;border-radius:22px;background:#fff;border:1px solid var(--line)}.chart-title{font-size:14px;font-weight:1000;margin-bottom:10px;letter-spacing:-.02em}
-    .bars{height:112px;display:flex;align-items:end;gap:7px;padding:6px 2px 0}.bar-col{flex:1;display:flex;flex-direction:column;align-items:center;gap:5px}.bar-col i{width:100%;border-radius:999px 999px 8px 8px;background:linear-gradient(180deg,#bca7ff,#ff9fad);box-shadow:0 8px 13px rgba(128,98,214,.12)}.bar-col:nth-child(2) i{background:linear-gradient(180deg,#ffd66b,#ffa86e)}.bar-col:nth-child(3) i{background:linear-gradient(180deg,#8fd6ff,#75c7e8)}.bar-col:nth-child(4) i{background:linear-gradient(180deg,#77e1d5,#55cfc2)}.bar-col span{font-size:10px;color:var(--muted);font-weight:900}
-    .donut-wrap{display:grid;place-items:center;min-height:112px}.donut{width:96px;height:96px;border-radius:50%;background:conic-gradient(var(--lilac) 0 38%, var(--pink) 38% 63%, var(--yellow) 63% 82%, var(--mint) 82% 100%);position:relative;box-shadow:0 10px 18px rgba(67,75,124,.12)}.donut::after{content:"";position:absolute;inset:22px;border-radius:50%;background:#fff}.donut-center{position:absolute;font-size:19px;font-weight:1000;z-index:2;color:var(--lilac-dark)}
-    .bottom-nav{position:sticky;bottom:10px;display:grid;grid-template-columns:repeat(3,1fr);gap:8px;padding:8px;margin-top:14px;border-radius:25px;background:rgba(255,255,255,.80);box-shadow:var(--shadow);backdrop-filter:blur(14px);border:1px solid rgba(255,255,255,.74);z-index:5}.navbtn{border:0;border-radius:17px;padding:9px 4px;background:transparent;color:#68777f;font-size:11px;font-weight:1000}.navbtn.active{background:#e7fbf8;color:#247a80}
-    @media (max-width:365px){.charts{grid-template-columns:1fr}.kpi{min-height:76px}.hero{min-height:198px}h1{font-size:31px}}
-    @media (min-width:700px){.phone{width:min(980px,100%);padding:20px;display:grid;grid-template-columns:360px 1fr;gap:14px;align-content:start}.top,.hero,.kpis{grid-column:1}.sections{grid-column:2;grid-row:1 / span 4}.hero{min-height:420px;margin-bottom:0}.kpis{grid-template-columns:repeat(2,1fr)}.bottom-nav{display:none}}
+    @import url('https://fonts.googleapis.com/css2?family=Nunito:wght@600;700;800;900&family=Quicksand:wght@700&display=swap');
+    :root{--ink:#24313a;--muted:#6d7b84;--mint:#55cfc2;--mint-dark:#278d89;--line:rgba(36,49,58,.1);--card:rgba(255,255,255,.9);--shadow:0 12px 28px rgba(52,89,100,.14)}
+    *{box-sizing:border-box} body{margin:0;color:var(--ink);font-family:Nunito,system-ui,sans-serif;background:linear-gradient(180deg,#e7fbfb,#bfeef0);min-height:100vh}
+    main{width:min(680px,100%);margin:auto;padding:16px 12px 28px} .top{display:flex;justify-content:space-between;align-items:center;font-size:13px;font-weight:900;color:#36777c;margin:0 4px 12px} .date{background:#fff;padding:7px 10px;border-radius:99px}
+    .hero{padding:21px;border-radius:30px;background:linear-gradient(135deg,#dffaf7,#c8e6ff);box-shadow:var(--shadow);margin-bottom:12px} h1,h2{font-family:Quicksand,Nunito,sans-serif;margin:0;letter-spacing:-.045em} h1{font-size:34px;line-height:1} .hero p{margin:8px 0 0;font-weight:800;color:#46747a}
+    section{margin-bottom:12px;padding:15px;border-radius:27px;background:var(--card);box-shadow:var(--shadow);border:1px solid rgba(255,255,255,.8)} .head{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:12px} h2{font-size:23px} .badge{font-size:11px;font-weight:900;padding:7px 10px;border-radius:99px;background:#e7fbf8;color:#207c77}
+    .list{display:grid;gap:9px} details{background:#fff;border:1px solid var(--line);border-radius:20px;padding:12px} summary{display:flex;align-items:center;gap:8px;cursor:pointer;list-style:none} summary::-webkit-details-marker{display:none} summary::after{content:'⌄';font-size:21px;color:var(--mint-dark);margin-left:4px} details[open] summary::after{transform:rotate(180deg)} .title{font-size:16px;font-weight:900;line-height:1.15;flex:1} .count{white-space:nowrap;font-size:12px;font-weight:900;padding:5px 8px;border-radius:99px;background:#eaf9fb;color:#27778a} .subtasks{margin:12px 0 0;padding:11px 0 0;border-top:1px solid var(--line);display:grid;gap:9px;list-style:none} .subtask{display:grid;grid-template-columns:21px 1fr;gap:8px;align-items:start;font-size:14px;font-weight:700;line-height:1.28;color:var(--muted)} .mark{width:20px;height:20px;border-radius:7px;border:2px solid #9bded9;background:#f1fffd;display:grid;place-items:center;color:#fff;font-weight:900} .done{opacity:.58} .done .mark{background:var(--mint);border-color:var(--mint-dark)} .done span:last-child{text-decoration:line-through} .progress{background:#fff;border:1px solid var(--line);border-radius:19px;padding:13px} .progress-line{display:flex;justify-content:space-between;gap:8px;font-size:16px;font-weight:900;margin-bottom:9px} .bar{height:10px;overflow:hidden;border-radius:99px;background:#e6eff1} .bar i{display:block;height:100%;width:14.0%;background:linear-gradient(90deg,var(--mint),#ffd66b);border-radius:99px} .empty{margin:0;color:var(--muted);font-weight:700}
   </style>
 </head>
 <body>
-  <main class="phone">
-    <div class="top"><div class="hello">Татьяна, штаб задач</div><div class="date" id="top-date"></div></div>
-    <section class="hero"><img src="assets/tiana-avatar.jpg" alt="Тиана"><div class="hero-title"><h1>Штаб задач</h1><div class="hero-sub">фокус на сегодня · что в работе</div></div></section>
-    <div class="sections">
-      <section class="section" id="today"><div class="section-head"><h2>✨ Сегодня</h2><span class="tag today" id="today-date"></span></div><div class="list">
-        <details class="task-group"><summary><div class="title">Ассистентка и рассылки</div><p class="note">Готово: 0 из 5</p></summary><div class="task-subtasks"><div class="subtask"><span class="subtask-mark" aria-hidden="true"></span><span>Проверить текущие колонки и формулы</span></div><div class="subtask"><span class="subtask-mark" aria-hidden="true"></span><span>Довести дашборд рассылок по периодам</span></div><div class="subtask"><span class="subtask-mark" aria-hidden="true"></span><span>Зафиксировать критерии качественного лида</span></div><div class="subtask"><span class="subtask-mark" aria-hidden="true"></span><span>Собрать шаблон еженедельной выжимки</span></div><div class="subtask"><span class="subtask-mark" aria-hidden="true"></span><span>Закрепить регламент для ассистентки</span></div></div></details>
-        <details class="task-group"><summary><div class="title">Финансовый контур клиентов</div><p class="note">Готово: 1 из 4</p></summary><div class="task-subtasks"><div class="subtask done"><span class="subtask-mark" aria-hidden="true">✓</span><span>Создать закрытый реестр оплат клиентов</span></div><div class="subtask"><span class="subtask-mark" aria-hidden="true"></span><span>Собрать даты ближайших оплат клиентов</span></div><div class="subtask"><span class="subtask-mark" aria-hidden="true"></span><span>Настроить статусы оплат и просрочек</span></div><div class="subtask"><span class="subtask-mark" aria-hidden="true"></span><span>Настроить сводку по поступлениям</span></div></div></details>
-      </div></section>
-      <section class="section" id="work"><div class="section-head"><h2>🗂 Следующие задачи</h2><span class="tag later">не на сегодня</span></div><div class="list">
-        <details class="task-group"><summary><div class="title">Проджект по таргетологам</div><p class="note">Готово: 0 из 4</p></summary><div class="task-subtasks"><div class="subtask"><span class="subtask-mark" aria-hidden="true"></span><span>Карта таргетолог — клиент — дедлайн</span></div><div class="subtask"><span class="subtask-mark" aria-hidden="true"></span><span>Стандарт хорошего отчёта</span></div><div class="subtask"><span class="subtask-mark" aria-hidden="true"></span><span>Чек-лист проверки отчётов</span></div><div class="subtask"><span class="subtask-mark" aria-hidden="true"></span><span>Ритм контроля</span></div></div></details>
-        <details class="task-group"><summary><div class="title">Контент Татьяны</div><p class="note">Готово: 0 из 4</p></summary><div class="task-subtasks"><div class="subtask"><span class="subtask-mark" aria-hidden="true"></span><span>Цели, площадки и офферы</span></div><div class="subtask"><span class="subtask-mark" aria-hidden="true"></span><span>Банк идей и рубрики</span></div><div class="subtask"><span class="subtask-mark" aria-hidden="true"></span><span>Недельный контент-план</span></div><div class="subtask"><span class="subtask-mark" aria-hidden="true"></span><span>Аналитика контента и заявок</span></div></div></details>
-        <details class="task-group"><summary><div class="title">Клиентский контур</div><p class="note">Готово: 0 из 1</p></summary><div class="task-subtasks"><div class="subtask"><span class="subtask-mark" aria-hidden="true"></span><span>Правила работы с клиентским контуром</span></div></div></details>
-      </div></section>
-      <section class="section" id="status"><div class="section-head"><h2>📋 Состояние</h2></div><div class="list"><article class="progress-card"><div class="progress-top"><div class="title">1 из 14 подзадач готовы</div><span class="pill">13 осталось</span></div><div class="bar"><i style="width:7.15%"></i></div></article></div></section>
-    </div>
-    <nav class="bottom-nav"><button class="navbtn active" onclick="go('today')">Сегодня</button><button class="navbtn" onclick="go('work')">Следующие</button><button class="navbtn" onclick="go('status')">Состояние</button></nav>
+  <main>
+    <div class="top"><span>Татьяна, штаб задач</span><span class="date" id="date"></span></div>
+    <header class="hero"><h1>Штаб задач</h1><p>Фокус и следующий слой работы</p></header>
+    <section><div class="head"><h2>Сегодня</h2><span class="badge" id="today-label"></span></div><div class="list"><details class="task-group">
+  <summary><span class="title">Ассистентка и рассылки</span><span class="count">0 из 5</span></summary>
+  <ul class="subtasks"><li class="subtask"><span class="mark"></span><span>Проверить текущие колонки и формулы</span></li><li class="subtask"><span class="mark"></span><span>Довести дашборд рассылок по периодам</span></li><li class="subtask"><span class="mark"></span><span>Зафиксировать критерии качественного лида</span></li><li class="subtask"><span class="mark"></span><span>Собрать шаблон еженедельной выжимки</span></li><li class="subtask"><span class="mark"></span><span>Закрепить регламент для ассистентки</span></li></ul>
+</details><details class="task-group">
+  <summary><span class="title">Закрытый рабочий контур</span><span class="count">1 из 4</span></summary>
+  <ul class="subtasks"><li class="subtask done"><span class="mark">✓</span><span>Подготовить закрытый рабочий реестр</span></li><li class="subtask"><span class="mark"></span><span>Сверить ближайшие плановые даты</span></li><li class="subtask"><span class="mark"></span><span>Настроить рабочие статусы</span></li><li class="subtask"><span class="mark"></span><span>Подготовить внутреннюю сводку</span></li></ul>
+</details></div></section>
+    <section><div class="head"><h2>Следующие задачи</h2><span class="badge">не срочно</span></div><div class="list"><details class="task-group">
+  <summary><span class="title">Проджект по таргетологам</span><span class="count">0 из 4</span></summary>
+  <ul class="subtasks"><li class="subtask"><span class="mark"></span><span>Собрать карту: таргетолог — клиент — дедлайн отчёта</span></li><li class="subtask"><span class="mark"></span><span>Зафиксировать стандарт хорошего отчёта</span></li><li class="subtask"><span class="mark"></span><span>Собрать чек-лист проверки отчётов</span></li><li class="subtask"><span class="mark"></span><span>Настроить ритм контроля отчётов</span></li></ul>
+</details><details class="task-group">
+  <summary><span class="title">Контент Татьяны</span><span class="count">0 из 4</span></summary>
+  <ul class="subtasks"><li class="subtask"><span class="mark"></span><span>Собрать цели, площадки и офферы контента</span></li><li class="subtask"><span class="mark"></span><span>Собрать банк идей и рубрики</span></li><li class="subtask"><span class="mark"></span><span>Собрать недельный контент-план</span></li><li class="subtask"><span class="mark"></span><span>Настроить аналитику контента и заявок</span></li></ul>
+</details><details class="task-group">
+  <summary><span class="title">Клиентский контур</span><span class="count">2 из 3</span></summary>
+  <ul class="subtasks"><li class="subtask done"><span class="mark">✓</span><span>Подготовить изолированное рабочее пространство</span></li><li class="subtask done"><span class="mark">✓</span><span>Проверить доступные рабочие источники</span></li><li class="subtask"><span class="mark"></span><span>Собрать правила запуска рабочего контура</span></li></ul>
+</details></div></section>
+    <section><div class="head"><h2>Состояние</h2></div><div class="progress"><div class="progress-line"><span>4 из 28 готово</span><span>14%</span></div><div class="bar"><i></i></div></div></section>
   </main>
   <script src="https://telegram.org/js/telegram-web-app.js"></script>
   <script>
-    const telegramApp = window.Telegram?.WebApp;
-    if (telegramApp) {
-      telegramApp.ready();
-      telegramApp.expand();
-    }
-    const moscowDate = new Intl.DateTimeFormat('ru-RU', { timeZone: 'Europe/Moscow', day: 'numeric', month: 'long' }).format(new Date());
-    document.getElementById('top-date').textContent = moscowDate;
-    document.getElementById('today-date').textContent = moscowDate;
-    document.querySelectorAll('.task-group').forEach((group) => {
-      const title = group.querySelector('.title')?.textContent.trim() || 'Задача';
-      const subtasks = [...group.querySelectorAll('.subtask')];
-      const allDone = subtasks.length > 0 && subtasks.every(item => item.classList.contains('done'));
-      group.classList.toggle('complete', allDone);
-      group.querySelector('summary')?.setAttribute('aria-label', allDone ? `${title}: готово` : title);
-    });
-    function go(id){
-      document.getElementById(id).scrollIntoView({behavior:'smooth',block:'start'});
-      document.querySelectorAll('.navbtn').forEach(b=>b.classList.toggle('active', b.getAttribute('onclick') === `go('${id}')`));
-    }
+    window.Telegram?.WebApp?.ready(); window.Telegram?.WebApp?.expand();
+    const date = new Intl.DateTimeFormat('ru-RU', {timeZone:'Europe/Moscow', day:'numeric', month:'long'}).format(new Date());
+    document.getElementById('date').textContent = date; document.getElementById('today-label').textContent = date;
   </script>
 </body>
 </html>
