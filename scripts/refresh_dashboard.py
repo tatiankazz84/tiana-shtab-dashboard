@@ -10,11 +10,13 @@ import html
 import json
 import subprocess
 import sys
+from datetime import datetime, timezone
 from pathlib import Path
 
 SHEET_ID = "1-ctgpF_yoyYBunJkkV1ZpPmp-NTFkvdBp5ep5kAGFeE"
 ROOT = Path(__file__).resolve().parents[1]
 GAPI = Path.home() / ".hermes/skills/productivity/google-workspace/scripts/google_api.py"
+VENV_PYTHON = ROOT / ".venv-google/bin/python"
 
 # Public names: the source sheet may hold private operating details.
 PUBLIC_PARENT = {
@@ -40,10 +42,19 @@ PUBLIC_TASK = {
     "Собрать правила запуска клиентского агента": "Собрать правила запуска рабочего контура",
 }
 
+# A new private label may appear in the live sheet before a specific mapping is
+# added above. Keep the public page conservative in that case rather than
+# letting finance terminology or a client name escape into the Mini App.
+PRIVATE_TERMS = (
+    "клиент", "оплат", "финанс", "зарплат", "выплат", "налог", "деньг",
+    "поступлен", "начислен", "ульям медвед",
+)
+
 
 def get_range(a1: str) -> list[list[str]]:
+    python = VENV_PYTHON if VENV_PYTHON.exists() else Path(sys.executable)
     result = subprocess.run(
-        [sys.executable, str(GAPI), "sheets", "get", SHEET_ID, a1],
+        [str(python), str(GAPI), "sheets", "get", SHEET_ID, a1],
         check=True, capture_output=True, text=True,
     )
     return json.loads(result.stdout)
@@ -54,11 +65,21 @@ def text(value: str) -> str:
 
 
 def safe_parent(name: str) -> str:
-    return PUBLIC_PARENT.get(name, name)
+    mapped = PUBLIC_PARENT.get(name)
+    if mapped:
+        return mapped
+    if any(term in name.casefold() for term in PRIVATE_TERMS):
+        return "Закрытый рабочий контур"
+    return name
 
 
 def safe_task(name: str) -> str:
-    return PUBLIC_TASK.get(name, name)
+    mapped = PUBLIC_TASK.get(name)
+    if mapped:
+        return mapped
+    if any(term in name.casefold() for term in PRIVATE_TERMS):
+        return "Внутренняя задача закрытого контура"
+    return name
 
 
 def complete(row: dict) -> bool:
@@ -131,6 +152,8 @@ def main() -> None:
     except ValueError:
         percent = round(done / total * 100) if total else 0
 
+    render_marker = datetime.now(timezone.utc).strftime("%Y%m%dT%H%M%SZ")
+
     today_html = "".join(group_html(parents[parent_id], children[parent_id]) for parent_id in today_ids)
     next_html = "".join(group_html(parents[parent_id], children[parent_id]) for parent_id in next_ids)
     if not today_html:
@@ -143,6 +166,7 @@ def main() -> None:
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="dashboard-render" content="{render_marker}">
   <title>Штаб задач</title>
   <style>
     @import url('https://fonts.googleapis.com/css2?family=Nunito:wght@600;700;800;900&family=Quicksand:wght@700&display=swap');
