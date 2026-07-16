@@ -23,7 +23,13 @@ PUBLIC_PARENT = {
     "Клиенты и оплаты": "Закрытый рабочий контур",
     "Зарплаты таргетологов": "Внутренний рабочий контур",
     "Ульям Медведь": "Клиентский контур",
+    "Контент Татьяны — оркестратор": "Контент Татьяны",
+    "Ульям Медведь — контент": "Клиентский контур",
 }
+
+# Implementation work does not belong in a public task HQ, even when the
+# source summary lists it among non-urgent contours.
+INTERNAL_CONTOUR_TERMS = ("target ops", "пиксел")
 PUBLIC_TASK = {
     "Создать закрытый реестр оплат клиентов": "Подготовить закрытый рабочий реестр",
     "Собрать даты ближайших оплат клиентов": "Сверить ближайшие плановые даты",
@@ -97,7 +103,7 @@ def group_html(parent: dict, subtasks: list[dict]) -> str:
             f'<span>{text(safe_task(item["task"]))}</span></li>'
         )
     return f'''<details class="task-group">
-  <summary><span class="title">{text(safe_parent(parent["contour"]))}</span><span class="count">{done} из {len(subtasks)}</span></summary>
+  <summary><span class="title">{text(safe_task(parent["task"]))}</span><span class="count">{done} из {len(subtasks)}</span></summary>
   <ul class="subtasks">{"".join(items)}</ul>
 </details>'''
 
@@ -140,7 +146,11 @@ def main() -> None:
     next_ids = [
         parent_id for contour in next_contours
         for parent_id, parent in parents.items()
-        if parent["contour"].casefold() == contour and parent_id not in today_ids
+        if (
+            parent["contour"].casefold() == contour
+            and parent_id not in today_ids
+            and not any(term in parent["contour"].casefold() for term in INTERNAL_CONTOUR_TERMS)
+        )
     ]
 
     metrics = {row[0].strip(): row[1].strip() for row in summary_values if len(row) > 1}
