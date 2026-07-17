@@ -98,8 +98,10 @@ def group_html(parent: dict, subtasks: list[dict]) -> str:
     for item in subtasks:
         state = " done" if complete(item) else ""
         mark = "✓" if complete(item) else ""
+        checked = "true" if complete(item) else "false"
         items.append(
-            f'<li class="subtask{state}"><span class="mark">{mark}</span>'
+            f'<li class="subtask{state}" data-task-id="{text(item["id"])}" '
+            f'role="checkbox" tabindex="0" aria-checked="{checked}"><span class="mark">{mark}</span>'
             f'<span>{text(safe_task(item["task"]))}</span></li>'
         )
     return f'''<details class="task-group">
@@ -153,14 +155,10 @@ def main() -> None:
         )
     ]
 
-    metrics = {row[0].strip(): row[1].strip() for row in summary_values if len(row) > 1}
-    total = int(metrics.get("Всего подзадач", "0") or 0)
-    done = int(metrics.get("Готово", "0") or 0)
-    progress = metrics.get("Прогресс", "0%").replace("%", "")
-    try:
-        percent = max(0, min(100, float(progress)))
-    except ValueError:
-        percent = round(done / total * 100) if total else 0
+    all_subtasks = [row for row in rows if row["level"] == "Подзадача"]
+    total = len(all_subtasks)
+    done = sum(complete(row) for row in all_subtasks)
+    percent = round(done / total * 100) if total else 0
 
     render_marker = datetime.now(timezone.utc).strftime("%Y%m%dT%H%M%SZ")
 
@@ -185,7 +183,7 @@ def main() -> None:
     main{{width:min(680px,100%);margin:auto;padding:16px 12px 28px}} .top{{display:flex;justify-content:space-between;align-items:center;font-size:13px;font-weight:900;color:#36777c;margin:0 4px 12px}} .date{{background:#fff;padding:7px 10px;border-radius:99px}}
     .hero{{padding:21px;border-radius:30px;background:linear-gradient(135deg,#dffaf7,#c8e6ff);box-shadow:var(--shadow);margin-bottom:12px}} h1,h2{{font-family:Quicksand,Nunito,sans-serif;margin:0;letter-spacing:-.045em}} h1{{font-size:34px;line-height:1}} .hero p{{margin:8px 0 0;font-weight:800;color:#46747a}}
     section{{margin-bottom:12px;padding:15px;border-radius:27px;background:var(--card);box-shadow:var(--shadow);border:1px solid rgba(255,255,255,.8)}} .head{{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:12px}} h2{{font-size:23px}} .badge{{font-size:11px;font-weight:900;padding:7px 10px;border-radius:99px;background:#e7fbf8;color:#207c77}}
-    .list{{display:grid;gap:9px}} details{{background:#fff;border:1px solid var(--line);border-radius:20px;padding:12px}} summary{{display:flex;align-items:center;gap:8px;cursor:pointer;list-style:none}} summary::-webkit-details-marker{{display:none}} summary::after{{content:'⌄';font-size:21px;color:var(--mint-dark);margin-left:4px}} details[open] summary::after{{transform:rotate(180deg)}} .title{{font-size:16px;font-weight:900;line-height:1.15;flex:1}} .count{{white-space:nowrap;font-size:12px;font-weight:900;padding:5px 8px;border-radius:99px;background:#eaf9fb;color:#27778a}} .subtasks{{margin:12px 0 0;padding:11px 0 0;border-top:1px solid var(--line);display:grid;gap:9px;list-style:none}} .subtask{{display:grid;grid-template-columns:21px 1fr;gap:8px;align-items:start;font-size:14px;font-weight:700;line-height:1.28;color:var(--muted)}} .mark{{width:20px;height:20px;border-radius:7px;border:2px solid #9bded9;background:#f1fffd;display:grid;place-items:center;color:#fff;font-weight:900}} .done{{opacity:.58}} .done .mark{{background:var(--mint);border-color:var(--mint-dark)}} .done span:last-child{{text-decoration:line-through}} .progress{{background:#fff;border:1px solid var(--line);border-radius:19px;padding:13px}} .progress-line{{display:flex;justify-content:space-between;gap:8px;font-size:16px;font-weight:900;margin-bottom:9px}} .bar{{height:10px;overflow:hidden;border-radius:99px;background:#e6eff1}} .bar i{{display:block;height:100%;width:{percent}%;background:linear-gradient(90deg,var(--mint),#ffd66b);border-radius:99px}} .empty{{margin:0;color:var(--muted);font-weight:700}}
+    .list{{display:grid;gap:9px}} details{{background:#fff;border:1px solid var(--line);border-radius:20px;padding:12px}} summary{{display:flex;align-items:center;gap:8px;cursor:pointer;list-style:none}} summary::-webkit-details-marker{{display:none}} summary::after{{content:'⌄';font-size:21px;color:var(--mint-dark);margin-left:4px}} details[open] summary::after{{transform:rotate(180deg)}} .title{{font-size:16px;font-weight:900;line-height:1.15;flex:1}} .count{{white-space:nowrap;font-size:12px;font-weight:900;padding:5px 8px;border-radius:99px;background:#eaf9fb;color:#27778a}} .subtasks{{margin:12px 0 0;padding:11px 0 0;border-top:1px solid var(--line);display:grid;gap:9px;list-style:none}} .subtask{{display:grid;grid-template-columns:21px 1fr;gap:8px;align-items:start;font-size:14px;font-weight:700;line-height:1.28;color:var(--muted);cursor:pointer;touch-action:manipulation;user-select:none}} .subtask:focus-visible{{outline:3px solid rgba(85,207,194,.55);outline-offset:4px;border-radius:9px}} .mark{{width:20px;height:20px;border-radius:7px;border:2px solid #9bded9;background:#f1fffd;display:grid;place-items:center;color:#fff;font-weight:900}} .done{{opacity:.58}} .done .mark{{background:var(--mint);border-color:var(--mint-dark)}} .done span:last-child{{text-decoration:line-through}} .progress{{background:#fff;border:1px solid var(--line);border-radius:19px;padding:13px}} .progress-line{{display:flex;justify-content:space-between;gap:8px;font-size:16px;font-weight:900;margin-bottom:9px}} .bar{{height:10px;overflow:hidden;border-radius:99px;background:#e6eff1}} .bar i{{display:block;height:100%;width:{percent}%;background:linear-gradient(90deg,var(--mint),#ffd66b);border-radius:99px}} .empty{{margin:0;color:var(--muted);font-weight:700}}
   </style>
 </head>
 <body>
@@ -194,13 +192,54 @@ def main() -> None:
     <header class="hero"><h1>Штаб задач</h1><p>Фокус и следующий слой работы</p></header>
     <section><div class="head"><h2>Сегодня</h2><span class="badge" id="today-label"></span></div><div class="list">{today_html}</div></section>
     <section><div class="head"><h2>Следующие задачи</h2><span class="badge">не срочно</span></div><div class="list">{next_html}</div></section>
-    <section><div class="head"><h2>Состояние</h2></div><div class="progress"><div class="progress-line"><span>{done} из {total} готово</span><span>{percent:g}%</span></div><div class="bar"><i></i></div></div></section>
+    <section><div class="head"><h2>Состояние</h2></div><div class="progress" data-source-done="{done}" data-total="{total}"><div class="progress-line"><span id="progress-label">{done} из {total} готово</span><span id="progress-percent">{percent:g}%</span></div><div class="bar"><i id="progress-bar"></i></div></div></section>
   </main>
   <script src="https://telegram.org/js/telegram-web-app.js"></script>
   <script>
     window.Telegram?.WebApp?.ready(); window.Telegram?.WebApp?.expand();
     const date = new Intl.DateTimeFormat('ru-RU', {{timeZone:'Europe/Moscow', day:'numeric', month:'long'}}).format(new Date());
     document.getElementById('date').textContent = date; document.getElementById('today-label').textContent = date;
+    const storageKey = 'tiana-shtab-subtasks-v2';
+    const saved = JSON.parse(localStorage.getItem(storageKey) || '{{}}');
+    const tasks = [...document.querySelectorAll('.subtask[data-task-id]')];
+    const initial = new Map(tasks.map(task => [task.dataset.taskId, task.classList.contains('done')]));
+
+    function setState(task, isDone) {{
+      task.classList.toggle('done', isDone);
+      task.setAttribute('aria-checked', String(isDone));
+      task.querySelector('.mark').textContent = isDone ? '✓' : '';
+    }}
+    function refreshCounts() {{
+      document.querySelectorAll('.task-group').forEach(group => {{
+        const groupTasks = [...group.querySelectorAll('.subtask[data-task-id]')];
+        const complete = groupTasks.filter(task => task.classList.contains('done')).length;
+        group.querySelector('.count').textContent = `${{complete}} из ${{groupTasks.length}}`;
+      }});
+      const progress = document.querySelector('.progress');
+      const baseDone = Number(progress.dataset.sourceDone);
+      const total = Number(progress.dataset.total);
+      const delta = tasks.reduce((sum, task) => sum + (task.classList.contains('done') === initial.get(task.dataset.taskId) ? 0 : (task.classList.contains('done') ? 1 : -1)), 0);
+      const complete = Math.max(0, Math.min(total, baseDone + delta));
+      const percent = total ? Math.round(complete / total * 100) : 0;
+      document.getElementById('progress-label').textContent = `${{complete}} из ${{total}} готово`;
+      document.getElementById('progress-percent').textContent = `${{percent}}%`;
+      document.getElementById('progress-bar').style.width = `${{percent}}%`;
+    }}
+    tasks.forEach(task => {{
+      const id = task.dataset.taskId;
+      if (Object.hasOwn(saved, id)) setState(task, Boolean(saved[id]));
+      task.addEventListener('click', () => {{
+        const next = !task.classList.contains('done');
+        setState(task, next); saved[id] = next;
+        localStorage.setItem(storageKey, JSON.stringify(saved));
+        window.Telegram?.WebApp?.HapticFeedback?.selectionChanged();
+        refreshCounts();
+      }});
+      task.addEventListener('keydown', event => {{
+        if (event.key === 'Enter' || event.key === ' ') {{ event.preventDefault(); task.click(); }}
+      }});
+    }});
+    refreshCounts();
   </script>
 </body>
 </html>'''
