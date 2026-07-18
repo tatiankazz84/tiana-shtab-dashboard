@@ -8,9 +8,11 @@ from __future__ import annotations
 
 import html
 import json
+import re
 import subprocess
 import sys
 from datetime import datetime, timezone
+from html.parser import HTMLParser
 from pathlib import Path
 
 SHEET_ID = "1-ctgpF_yoyYBunJkkV1ZpPmp-NTFkvdBp5ep5kAGFeE"
@@ -92,6 +94,10 @@ def complete(row: dict) -> bool:
     return row["done"].strip() == "☑" or row["status"].strip().lower() == "готово"
 
 
+def is_internal_contour(name: str) -> bool:
+    return any(term in name.casefold() for term in INTERNAL_CONTOUR_TERMS)
+
+
 def group_html(parent: dict, subtasks: list[dict]) -> str:
     done = sum(complete(item) for item in subtasks)
     items = []
@@ -110,6 +116,7 @@ def group_html(parent: dict, subtasks: list[dict]) -> str:
 
 def main() -> None:
     tree_values = get_range("14_Дерево_задач!A1:N200")
+    summary_values = get_range("15_Сводка_задач!A1:N100")
 
     rows: list[dict] = []
     for values in tree_values[5:]:
@@ -132,13 +139,6 @@ def main() -> None:
     def is_open(row: dict) -> bool:
         return not complete(row) and not row["status"].strip().casefold().startswith("отложено")
 
-    def is_for_tatiana(row: dict) -> bool:
-        return row["needs_tatiana"].strip().casefold() == "да"
-
-    def is_publicly_safe(row: dict) -> bool:
-        private_text = f'{row["contour"]} {row["task"]}'.casefold()
-        return not any(term in private_text for term in PRIVATE_TERMS)
-
     def render_groups(selector) -> str:
         groups = []
         for parent_id, parent in parents.items():
@@ -147,26 +147,56 @@ def main() -> None:
                 groups.append(group_html(parent, selected))
         return "".join(groups)
 
-    # This screen is for Tatyana's decisions only. Tiana's implementation work
-    # stays in the internal task tree and never becomes a burden on this page.
+    # The summary chooses today's two parent cards; the tree remains authoritative
+    # for their hierarchy, actual completion marks and rendered child labels.
+    today_summary_index = next(
+        (i for i, row in enumerate(summary_values) if row and row[0].strip().casefold().startswith("сегодня")),
+        None,
+    )
+    today_task_ids = []
+    if today_summary_index is not None:
+        for row in summary_values[today_summary_index + 2:]:
+            if not row or not row[0].strip():
+                break
+            for value in row:
+                today_task_ids.extend(re.findall(r"(?<!\d)(\d+\.\d+)(?!\d)", value))
+    today_parent_ids = list(dict.fromkeys(
+        row["parent"] for row in rows
+        if row["id"] in today_task_ids and row["level"] == "Подзадача"
+        and not is_internal_contour(row["contour"])
+    ))
+    if len(today_parent_ids) != 2:
+        raise RuntimeError(f"Expected exactly two Today parent tasks, got {len(today_parent_ids)}")
     today_html = render_groups(
-        lambda row: is_open(row) and is_for_tatiana(row)
-        and row["today"].strip().casefold() == "да" and is_publicly_safe(row)
+        lambda row: row["parent"] in today_parent_ids and row["id"] in today_task_ids and is_open(row)
     )
-    decision_html = render_groups(
-        lambda row: is_open(row) and is_for_tatiana(row)
-        and row["today"].strip().casefold() != "да" and is_publicly_safe(row)
+
+    # The summary supplies the ordered non-urgent contours. Capitalization in
+    # its labels is not stable, so it is intentionally matched case-insensitively.
+    next_value = next(
+        (row[1] for row in summary_values if len(row) > 1 and row[0].strip().casefold() == "следующие задачи"),
+        "",
     )
-    plan_html = render_groups(
-        lambda row: is_open(row) and "татьяна" in row["owner"].casefold()
-        and not is_for_tatiana(row) and is_publicly_safe(row)
+    ordered_contours = [part.strip().casefold() for part in next_value.split(";") if part.strip()]
+    next_parent_ids = []
+    for contour in ordered_contours:
+        for parent_id, parent in parents.items():
+            if parent["contour"].strip().casefold() != contour or is_internal_contour(parent["contour"]):
+                continue
+            if any(is_open(child) and child["attention"].strip().casefold() == "не срочно" for child in children[parent_id]):
+                next_parent_ids.append(parent_id)
+    next_parent_ids = list(dict.fromkeys(next_parent_ids))
+    next_html = render_groups(
+        lambda row: row["parent"] in next_parent_ids and is_open(row)
+        and row["attention"].strip().casefold() == "не срочно"
     )
-    if not today_html:
-        today_html = '<p class="empty">На сегодня ничего срочного не выделено.</p>'
-    if not decision_html:
-        decision_html = '<p class="empty">Сейчас нет решений, которые нужно принять.</p>'
-    if not plan_html:
-        plan_html = '<p class="empty">Следующий план появится здесь, когда мы его выберем.</p>'
+    if not next_html:
+        next_html = '<p class="empty">Несрочные следующие задачи пока не выделены.</p>'
+
+    subtasks = [row for row in rows if row["level"] == "Подзадача"]
+    completed = sum(complete(row) for row in subtasks)
+    total = len(subtasks)
+    progress = round(completed / total * 100) if total else 0
 
     render_marker = datetime.now(timezone.utc).strftime("%Y%m%dT%H%M%SZ")
 
@@ -191,9 +221,9 @@ def main() -> None:
   <main>
     <div class="top"><span class="brand"><img class="avatar" src="assets/tiana-avatar.jpg" alt="Тиана"><span>Татьяна</span></span><span class="date" id="date"></span></div>
     <header class="hero"><h1>Важное сегодня</h1><p>Фокус, который стоит не потерять</p></header>
-    <section><div class="head"><h2>Срочно сегодня</h2><span class="badge" id="today-label"></span></div><div class="list">{today_html}</div></section>
-    <section><div class="head"><h2>Нужно твоё решение</h2></div><div class="list">{decision_html}</div></section>
-    <section><div class="head"><h2>Планы</h2></div><div class="list">{plan_html}</div></section>
+    <section><div class="head"><h2>Сегодня</h2><span class="badge" id="today-label"></span></div><div class="list">{today_html}</div></section>
+    <section><div class="head"><h2>Состояние</h2></div><div class="progress"><div class="progress-line"><span>Готово</span><span>{completed} из {total} · {progress}%</span></div><div class="bar"><i style="width:{progress}%"></i></div></div></section>
+    <section><div class="head"><h2>Следующие задачи</h2></div><div class="list">{next_html}</div></section>
   </main>
   <script src="https://telegram.org/js/telegram-web-app.js"></script>
   <script>
@@ -203,6 +233,18 @@ def main() -> None:
   </script>
 </body>
 </html>'''
+    class PageParser(HTMLParser):
+        pass
+
+    PageParser().feed(page)
+    today_start = page.index('<h2>Сегодня</h2>')
+    state_start = page.index('<h2>Состояние</h2>')
+    if page[today_start:state_start].count('<details class="task-group">') != 2:
+        raise RuntimeError("Dashboard must contain exactly two Today parent cards")
+    prohibited = ("ульям медвед", "финанс", "оплат", "зарплат", "выплат", "налог", "поступлен", "клиент")
+    leaked = [term for term in prohibited if term in page.casefold()]
+    if leaked:
+        raise RuntimeError(f"Private wording in public output: {', '.join(leaked)}")
     (ROOT / "index.html").write_text(page, encoding="utf-8")
     print("Updated index.html: personal dashboard view")
 
