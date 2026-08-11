@@ -114,6 +114,34 @@ def group_html(parent: dict, subtasks: list[dict]) -> str:
 </details>'''
 
 
+def development_html(parents: dict[str, dict], children: dict[str, list[dict]]) -> str:
+    """Render a safe, compact progress card for the Doctor rollout."""
+    doctor_parent = next(
+        (
+            parent
+            for parent in parents.values()
+            if parent["contour"].strip().casefold() == "доктор — работоспособность сервисов"
+        ),
+        None,
+    )
+    if doctor_parent is None:
+        return '<p class="empty">Проекты развития пока не выделены.</p>'
+
+    stages = children.get(doctor_parent["id"], [])
+    done = sum(complete(stage) for stage in stages)
+    current = next((stage for stage in stages if not complete(stage)), None)
+    current_label = "Все этапы завершены" if current is None else current["task"]
+    current_label = re.sub(r"^Этап\s+\d+\.\s*", "", current_label, flags=re.IGNORECASE)
+    progress = round(done / len(stages) * 100) if stages else 0
+
+    return f'''<article class="development-card">
+  <div class="development-top"><span class="title">Доктор — работоспособность сервисов</span><span class="count">{done} из {len(stages)}</span></div>
+  <p class="stage-label">Текущий этап</p>
+  <p class="stage-name">{text(current_label)}</p>
+  <div class="bar" aria-label="Прогресс проекта: {progress}%"><i style="width:{progress}%"></i></div>
+</article>'''
+
+
 def main() -> None:
     tree_values = get_range("14_Дерево_задач!A1:N200")
     summary_values = get_range("15_Сводка_задач!A1:N100")
@@ -193,6 +221,8 @@ def main() -> None:
     if not next_html:
         next_html = '<p class="empty">Несрочные следующие задачи пока не выделены.</p>'
 
+    development = development_html(parents, children)
+
     subtasks = [row for row in rows if row["level"] == "Подзадача"]
     completed = sum(complete(row) for row in subtasks)
     total = len(subtasks)
@@ -214,7 +244,7 @@ def main() -> None:
     main{{width:min(680px,100%);margin:auto;padding:16px 12px 28px}} .top{{display:flex;justify-content:space-between;align-items:center;font-size:13px;font-weight:900;color:#36777c;margin:0 4px 12px}} .brand{{display:flex;align-items:center;gap:8px}} .avatar{{width:34px;height:34px;border-radius:50%;object-fit:cover;border:2px solid rgba(255,255,255,.9);box-shadow:0 4px 12px rgba(52,89,100,.17)}} .date{{background:#fff;padding:7px 10px;border-radius:99px}}
     .hero{{padding:21px;border-radius:30px;background:linear-gradient(135deg,#dffaf7,#c8e6ff);box-shadow:var(--shadow);margin-bottom:12px}} h1,h2{{font-family:Quicksand,Nunito,sans-serif;margin:0;letter-spacing:-.045em}} h1{{font-size:34px;line-height:1}} .hero p{{margin:8px 0 0;font-weight:800;color:#46747a}}
     section{{margin-bottom:12px;padding:15px;border-radius:27px;background:var(--card);box-shadow:var(--shadow);border:1px solid rgba(255,255,255,.8)}} .head{{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:12px}} h2{{font-size:23px}} .badge{{font-size:11px;font-weight:900;padding:7px 10px;border-radius:99px;background:#e7fbf8;color:#207c77}}
-    .list{{display:grid;gap:9px}} details{{background:#fff;border:1px solid var(--line);border-radius:20px;padding:12px}} summary{{display:flex;align-items:center;gap:8px;cursor:pointer;list-style:none}} summary::-webkit-details-marker{{display:none}} summary::after{{content:'⌄';font-size:21px;color:var(--mint-dark);margin-left:4px}} details[open] summary::after{{transform:rotate(180deg)}} .title{{font-size:16px;font-weight:900;line-height:1.15;flex:1}} .count{{white-space:nowrap;font-size:12px;font-weight:900;padding:5px 8px;border-radius:99px;background:#eaf9fb;color:#27778a}} .subtasks{{margin:12px 0 0;padding:11px 0 0;border-top:1px solid var(--line);display:grid;gap:9px;list-style:none}} .subtask{{display:grid;grid-template-columns:21px 1fr;gap:8px;align-items:start;font-size:14px;font-weight:700;line-height:1.28;color:var(--muted)}} .subtask:focus-visible{{outline:3px solid rgba(85,207,194,.55);outline-offset:4px;border-radius:9px}} .mark{{width:20px;height:20px;border-radius:7px;border:2px solid #9bded9;background:#f1fffd;display:grid;place-items:center;color:#fff;font-weight:900}} .done{{opacity:.58}} .done .mark{{background:var(--mint);border-color:var(--mint-dark)}} .done span:last-child{{text-decoration:line-through}} .progress{{background:#fff;border:1px solid var(--line);border-radius:19px;padding:13px}} .progress-line{{display:flex;justify-content:space-between;gap:8px;font-size:16px;font-weight:900;margin-bottom:9px}} .bar{{height:10px;overflow:hidden;border-radius:99px;background:#e6eff1}} .bar i{{display:block;height:100%;width:0;background:linear-gradient(90deg,var(--mint),#ffd66b);border-radius:99px}} .empty{{margin:0;color:var(--muted);font-weight:700}}
+    .list{{display:grid;gap:9px}} details{{background:#fff;border:1px solid var(--line);border-radius:20px;padding:12px}} summary{{display:flex;align-items:center;gap:8px;cursor:pointer;list-style:none}} summary::-webkit-details-marker{{display:none}} summary::after{{content:'⌄';font-size:21px;color:var(--mint-dark);margin-left:4px}} details[open] summary::after{{transform:rotate(180deg)}} .title{{font-size:16px;font-weight:900;line-height:1.15;flex:1}} .count{{white-space:nowrap;font-size:12px;font-weight:900;padding:5px 8px;border-radius:99px;background:#eaf9fb;color:#27778a}} .subtasks{{margin:12px 0 0;padding:11px 0 0;border-top:1px solid var(--line);display:grid;gap:9px;list-style:none}} .subtask{{display:grid;grid-template-columns:21px 1fr;gap:8px;align-items:start;font-size:14px;font-weight:700;line-height:1.28;color:var(--muted)}} .subtask:focus-visible{{outline:3px solid rgba(85,207,194,.55);outline-offset:4px;border-radius:9px}} .mark{{width:20px;height:20px;border-radius:7px;border:2px solid #9bded9;background:#f1fffd;display:grid;place-items:center;color:#fff;font-weight:900}} .done{{opacity:.58}} .done .mark{{background:var(--mint);border-color:var(--mint-dark)}} .done span:last-child{{text-decoration:line-through}} .progress,.development-card{{background:#fff;border:1px solid var(--line);border-radius:19px;padding:13px}} .progress-line,.development-top{{display:flex;justify-content:space-between;align-items:center;gap:8px;font-size:16px;font-weight:900;margin-bottom:9px}} .stage-label{{margin:12px 0 3px;color:var(--muted);font-size:11px;font-weight:900;text-transform:uppercase;letter-spacing:.06em}} .stage-name{{margin:0 0 11px;font-size:14px;font-weight:800;line-height:1.3;color:#46616a}} .bar{{height:10px;overflow:hidden;border-radius:99px;background:#e6eff1}} .bar i{{display:block;height:100%;width:0;background:linear-gradient(90deg,var(--mint),#ffd66b);border-radius:99px}} .empty{{margin:0;color:var(--muted);font-weight:700}}
   </style>
 </head>
 <body>
@@ -223,6 +253,7 @@ def main() -> None:
     <header class="hero"><h1>Важное сегодня</h1><p>Фокус, который стоит не потерять</p></header>
     <section><div class="head"><h2>Сегодня</h2><span class="badge" id="today-label"></span></div><div class="list">{today_html}</div></section>
     <section><div class="head"><h2>Состояние</h2></div><div class="progress"><div class="progress-line"><span>Готово</span><span>{completed} из {total} · {progress}%</span></div><div class="bar"><i style="width:{progress}%"></i></div></div></section>
+    <section><div class="head"><h2>Развитие системы</h2></div>{development}</section>
     <section><div class="head"><h2>Следующие задачи</h2></div><div class="list">{next_html}</div></section>
   </main>
   <script src="https://telegram.org/js/telegram-web-app.js"></script>
