@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta name="dashboard-render" content="20260811T074500Z">
+  <meta name="dashboard-render" content="20260903T000123Z">
   <title>Важное сегодня</title>
   <style>
     @import url('https://fonts.googleapis.com/css2?family=Nunito:wght@600;700;800;900&family=Quicksand:wght@700&display=swap');
@@ -12,7 +12,7 @@
     main{width:min(680px,100%);margin:auto;padding:16px 12px 28px} .top{display:flex;justify-content:space-between;align-items:center;font-size:13px;font-weight:900;color:#36777c;margin:0 4px 12px} .brand{display:flex;align-items:center;gap:8px} .avatar{width:34px;height:34px;border-radius:50%;object-fit:cover;border:2px solid rgba(255,255,255,.9);box-shadow:0 4px 12px rgba(52,89,100,.17)} .date{background:#fff;padding:7px 10px;border-radius:99px}
     .hero{padding:21px;border-radius:30px;background:linear-gradient(135deg,#dffaf7,#c8e6ff);box-shadow:var(--shadow);margin-bottom:12px} h1,h2{font-family:Quicksand,Nunito,sans-serif;margin:0;letter-spacing:-.045em} h1{font-size:34px;line-height:1} .hero p{margin:8px 0 0;font-weight:800;color:#46747a}
     section{margin-bottom:12px;padding:15px;border-radius:27px;background:var(--card);box-shadow:var(--shadow);border:1px solid rgba(255,255,255,.8)} .head{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:12px} h2{font-size:23px} .badge{font-size:11px;font-weight:900;padding:7px 10px;border-radius:99px;background:#e7fbf8;color:#207c77}
-    .list{display:grid;gap:9px} details{background:#fff;border:1px solid var(--line);border-radius:20px;padding:12px} summary{display:flex;align-items:center;gap:8px;cursor:pointer;list-style:none} summary::-webkit-details-marker{display:none} summary::after{content:'⌄';font-size:21px;color:var(--mint-dark);margin-left:4px} details[open] summary::after{transform:rotate(180deg)} .title{font-size:16px;font-weight:900;line-height:1.15;flex:1} .count{white-space:nowrap;font-size:12px;font-weight:900;padding:5px 8px;border-radius:99px;background:#eaf9fb;color:#27778a} .subtasks{margin:12px 0 0;padding:11px 0 0;border-top:1px solid var(--line);display:grid;gap:9px;list-style:none} .subtask{display:grid;grid-template-columns:21px 1fr;gap:8px;align-items:start;font-size:14px;font-weight:700;line-height:1.28;color:var(--muted)} .subtask:focus-visible{outline:3px solid rgba(85,207,194,.55);outline-offset:4px;border-radius:9px} .mark{width:20px;height:20px;border-radius:7px;border:2px solid #9bded9;background:#f1fffd;display:grid;place-items:center;color:#fff;font-weight:900} .done{opacity:.58} .done .mark{background:var(--mint);border-color:var(--mint-dark)} .done span:last-child{text-decoration:line-through}.progress,.development-card{background:#fff;border:1px solid var(--line);border-radius:19px;padding:13px}.progress-line,.development-top{display:flex;justify-content:space-between;align-items:center;gap:8px;font-size:16px;font-weight:900;margin-bottom:9px}.stage-label{margin:12px 0 3px;color:var(--muted);font-size:11px;font-weight:900;text-transform:uppercase;letter-spacing:.06em}.stage-name{margin:0 0 11px;font-size:14px;font-weight:800;line-height:1.3;color:#46616a}.bar{height:10px;overflow:hidden;border-radius:99px;background:#e6eff1}.bar i{display:block;height:100%;width:0;background:linear-gradient(90deg,var(--mint),#ffd66b);border-radius:99px}.empty{margin:0;color:var(--muted);font-weight:700}
+    .list{display:grid;gap:9px} details{background:#fff;border:1px solid var(--line);border-radius:20px;padding:12px} summary{display:flex;align-items:center;gap:8px;cursor:pointer;list-style:none} summary::-webkit-details-marker{display:none} summary::after{content:'⌄';font-size:21px;color:var(--mint-dark);margin-left:4px} details[open] summary::after{transform:rotate(180deg)} .title{font-size:16px;font-weight:900;line-height:1.15;flex:1} .count{white-space:nowrap;font-size:12px;font-weight:900;padding:5px 8px;border-radius:99px;background:#eaf9fb;color:#27778a} .subtasks{margin:12px 0 0;padding:11px 0 0;border-top:1px solid var(--line);display:grid;gap:9px;list-style:none} .subtask{display:grid;grid-template-columns:21px 1fr;gap:8px;align-items:start;font-size:14px;font-weight:700;line-height:1.28;color:var(--muted)} .subtask:focus-visible{outline:3px solid rgba(85,207,194,.55);outline-offset:4px;border-radius:9px} .mark{width:20px;height:20px;border-radius:7px;border:2px solid #9bded9;background:#f1fffd;display:grid;place-items:center;color:#fff;font-weight:900} .done{opacity:.58} .done .mark{background:var(--mint);border-color:var(--mint-dark)} .done span:last-child{text-decoration:line-through} .progress{background:#fff;border:1px solid var(--line);border-radius:19px;padding:13px} .progress-line{display:flex;justify-content:space-between;align-items:center;gap:8px;font-size:16px;font-weight:900;margin-bottom:9px} .bar{height:10px;overflow:hidden;border-radius:99px;background:#e6eff1} .bar i{display:block;height:100%;width:0;background:linear-gradient(90deg,var(--mint),#ffd66b);border-radius:99px} .empty{margin:0;color:var(--muted);font-weight:700}
   </style>
 </head>
 <body>
@@ -25,14 +25,8 @@
 </details><details class="task-group">
   <summary><span class="title">Внутренняя задача закрытого контура</span><span class="count">0 из 1</span></summary>
   <ul class="subtasks"><li class="subtask"><span class="mark"></span><span>Сверить ближайшие плановые даты</span></li></ul>
-    </details></div></section>
-    <section><div class="head"><h2>Состояние</h2></div><div class="progress"><div class="progress-line"><span>Готово</span><span>4 из 38 · 11%</span></div><div class="bar"><i style="width:11%"></i></div></div></section>
-    <section><div class="head"><h2>Развитие системы</h2></div><article class="development-card">
-      <div class="development-top"><span class="title">Доктор — работоспособность сервисов</span><span class="count">0 из 7</span></div>
-      <p class="stage-label">Текущий этап</p>
-      <p class="stage-name">Провести безопасный аудит Доктора и контролируемых сервисов</p>
-      <div class="bar" aria-label="Прогресс проекта: 0%"><i style="width:0%"></i></div>
-    </article></section>
+</details></div></section>
+    <section><div class="head"><h2>Состояние</h2></div><div class="progress"><div class="progress-line"><span>Готово</span><span>11 из 51 · 22%</span></div><div class="bar"><i style="width:22%"></i></div></div></section>
     <section><div class="head"><h2>Следующие задачи</h2></div><div class="list"><details class="task-group">
   <summary><span class="title">Внутренняя задача закрытого контура</span><span class="count">0 из 1</span></summary>
   <ul class="subtasks"><li class="subtask"><span class="mark"></span><span>Подготовить внутреннюю сводку</span></li></ul>
