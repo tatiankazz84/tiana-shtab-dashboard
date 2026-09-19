@@ -22,8 +22,10 @@ VENV_PYTHON = ROOT / ".venv-google/bin/python"
 
 # Public names: the source sheet may hold private operating details.
 PUBLIC_PARENT = {
-    "Клиенты и оплаты": "Закрытый рабочий контур",
-    "Зарплаты таргетологов": "Внутренний рабочий контур",
+    # The public label must stay actionable after privacy filtering. A generic
+    # "closed contour" conceals sensitive details but tells Tatyana nothing.
+    "Клиенты и оплаты": "Рабочее планирование",
+    "Зарплаты таргетологов": "Внутреннее планирование",
     "Ульям Медведь": "Клиентский контур",
     "Контент Татьяны — оркестратор": "Контент Татьяны",
     "Ульям Медведь — контент": "Клиентский контур",
@@ -33,6 +35,7 @@ PUBLIC_PARENT = {
 # source summary lists it among non-urgent contours.
 INTERNAL_CONTOUR_TERMS = ("target ops", "пиксел")
 PUBLIC_TASK = {
+    "Собрать финансовую CRM по клиентам": "Наладить рабочее планирование",
     "Создать закрытый реестр оплат клиентов": "Подготовить закрытый рабочий реестр",
     "Собрать даты ближайших оплат клиентов": "Сверить ближайшие плановые даты",
     "Настроить статусы оплат и просрочек": "Настроить рабочие статусы",
