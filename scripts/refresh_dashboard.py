@@ -63,12 +63,28 @@ PRIVATE_TERMS = (
 
 
 def get_range(a1: str) -> list[list[str]]:
+    """Read the source sheet using the Hermes helper or the authorised token.
+
+    The fallback keeps this scheduled renderer operational if the optional
+    workspace skill helper is not installed in the active profile.
+    """
     python = VENV_PYTHON if VENV_PYTHON.exists() else Path(sys.executable)
-    result = subprocess.run(
-        [str(python), str(GAPI), "sheets", "get", SHEET_ID, a1],
-        check=True, capture_output=True, text=True,
-    )
-    return json.loads(result.stdout)
+    if GAPI.exists():
+        result = subprocess.run(
+            [str(python), str(GAPI), "sheets", "get", SHEET_ID, a1],
+            check=True, capture_output=True, text=True,
+        )
+        return json.loads(result.stdout)
+
+    from google.oauth2.credentials import Credentials
+    from googleapiclient.discovery import build
+
+    token_path = Path.home() / ".hermes/google_token.json"
+    credentials = Credentials.from_authorized_user_info(json.loads(token_path.read_text()))
+    service = build("sheets", "v4", credentials=credentials, cache_discovery=False)
+    return service.spreadsheets().values().get(
+        spreadsheetId=SHEET_ID, range=a1
+    ).execute().get("values", [])
 
 
 def text(value: str) -> str:
@@ -196,10 +212,18 @@ def main() -> None:
     if not next_html:
         next_html = '<p class="empty">Несрочные следующие задачи пока не выделены.</p>'
 
-    subtasks = [row for row in rows if row["level"] == "Подзадача"]
-    completed = sum(complete(row) for row in subtasks)
-    total = len(subtasks)
-    progress = round(completed / total * 100) if total else 0
+    # The summary owns the public overall progress. The tree intentionally
+    # retains historical/withdrawn rows, so recalculating from every row would
+    # overstate the denominator and disagree with the current operational view.
+    summary_metrics = {
+        row[0].strip().casefold(): row[1].strip()
+        for row in summary_values if len(row) > 1 and row[0].strip()
+    }
+    completed = summary_metrics.get("готово", "0")
+    total = summary_metrics.get("всего подзадач", "0")
+    progress_text = summary_metrics.get("прогресс", "0%")
+    progress_match = re.search(r"\d+", progress_text)
+    progress = int(progress_match.group()) if progress_match else 0
 
     render_marker = datetime.now(timezone.utc).strftime("%Y%m%dT%H%M%SZ")
 
