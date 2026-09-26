@@ -186,8 +186,10 @@ def main() -> None:
     ))
     if len(today_parent_ids) != 2:
         raise RuntimeError(f"Expected exactly two Today parent tasks, got {len(today_parent_ids)}")
+    # Keep every source-marked Today subtask visible, including completed ones:
+    # completion is useful context and is rendered as a checked line.
     today_html = render_groups(
-        lambda row: row["parent"] in today_parent_ids and row["id"] in today_task_ids and is_open(row)
+        lambda row: row["parent"] in today_parent_ids and row["id"] in today_task_ids
     )
 
     # The summary supplies the ordered non-urgent contours. Capitalization in
