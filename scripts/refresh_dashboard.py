@@ -202,7 +202,9 @@ def main() -> None:
     next_parent_ids = []
     for contour in ordered_contours:
         for parent_id, parent in parents.items():
-            if parent["contour"].strip().casefold() != contour or is_internal_contour(parent["contour"]):
+            if (parent["contour"].strip().casefold() != contour
+                    or is_internal_contour(parent["contour"])
+                    or parent_id in today_parent_ids):
                 continue
             if any(is_open(child) and child["attention"].strip().casefold() == "не срочно" for child in children[parent_id]):
                 next_parent_ids.append(parent_id)
